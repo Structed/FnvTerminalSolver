@@ -23,27 +23,29 @@ Add words below and we'll show you the possible passwords and which words are ar
 
             var results = new List<string>();
             // find the similarity between all the strings in text. Show me, which words have which characters in common.
-            if (text != null)
-                foreach (string line in text)
-                {
-                    foreach (string word in text)
-                    {
-                        if (line == word)
-                        {
-                            continue;
-                        }
+            if (text == null)
+                return;
 
-                        var commonChars = line.Intersect(word).ToArray();
-                        if (commonChars.Length > InputMinCommonCharacters)
+            foreach (string line in text)
+            {
+                foreach (string word in text)
+                {
+                    if (line == word)
+                    {
+                        continue;
+                    }
+
+                    var commonChars = line.Intersect(word).ToArray();
+                    if (commonChars.Length > InputMinCommonCharacters)
+                    {
+                        var item = $"{line} and {word} have the following {commonChars.Length} characters in common: {string.Join(", ", commonChars)}";
+                        if (!results.Contains(item))
                         {
-                            var item = $"{line} and {word} have the following {commonChars.Length} characters in common: {string.Join(", ", commonChars)}";
-                            if (!results.Contains(item))
-                            {
-                                results.Add(item);
-                            }
+                            results.Add(item);
                         }
                     }
                 }
+            }
 
             OutputWords = string.Join(Environment.NewLine, results);
         }

@@ -1,7 +1,52 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Fallout New Vegas Terminal Solver</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>FNV Terminal Solver</h1>
+Add words below and we'll show you the possible passwords and which words are are duds.
 
-Welcome to your new app.
+<input type="number" @bind="InputMinCommonCharacters" @bind:after="Solve"/>
+<textarea @bind="InputWords"  @bind:after="Solve" class="form-control" rows="5"></textarea>
+<textarea @bind="OutputWords" class="form-control" rows="15" disabled="disabled"></textarea>
+
+@code
+{
+    private string? InputWords { get; set; }
+    private int? InputMinCommonCharacters { get; set; } = 4;
+    private string? OutputWords { get; set; }
+
+    private void Solve()
+    {
+        if (InputMinCommonCharacters != null)
+        {
+            var text = InputWords?.Split([Environment.NewLine, " "], StringSplitOptions.RemoveEmptyEntries);
+
+            var results = new List<string>();
+            // find the similarity between all the strings in text. Show me, which words have which characters in common.
+            if (text != null)
+                foreach (string line in text)
+                {
+                    foreach (string word in text)
+                    {
+                        if (line == word)
+                        {
+                            continue;
+                        }
+
+                        var commonChars = line.Intersect(word).ToArray();
+                        if (commonChars.Length > InputMinCommonCharacters)
+                        {
+                            var item = $"{line} and {word} have the following {commonChars.Length} characters in common: {string.Join(", ", commonChars)}";
+                            if (!results.Contains(item))
+                            {
+                                results.Add(item);
+                            }
+                        }
+                    }
+                }
+
+            OutputWords = string.Join(Environment.NewLine, results);
+        }
+    }
+
+}

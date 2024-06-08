@@ -19,40 +19,38 @@ Add words below and we'll show you the possible passwords and which words are ar
 @code
 {
     private string? InputWords { get; set; }
-    private int? InputMinCommonCharacters { get; set; } = 4;
+    private int InputMinCommonCharacters { get; set; } = 4;
     private string? OutputWords { get; set; }
 
     private void Solve()
     {
-        if (InputMinCommonCharacters != null)
+        var text = InputWords?.Split([Environment.NewLine, " "], StringSplitOptions.RemoveEmptyEntries);
+
+        var results = new List<string>();
+        // find the similarity between all the strings in text. Show me, which words have which characters in common.
+        if (text == null)
+            return;
+
+        foreach (string line in text)
         {
-            var text = InputWords?.Split([Environment.NewLine, " "], StringSplitOptions.RemoveEmptyEntries);
-
-            var results = new List<string>();
-            // find the similarity between all the strings in text. Show me, which words have which characters in common.
-            if (text == null)
-                return;
-
-            foreach (string line in text)
+            foreach (string word in text)
             {
-                foreach (string word in text)
+                if (line == word)
                 {
-                    if (line == word)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    var commonChars = line.Intersect(word).ToArray();
-                    if (commonChars.Length > InputMinCommonCharacters)
+                var commonChars = line.Intersect(word).ToArray();
+                if (commonChars.Length > InputMinCommonCharacters)
+                {
+                    var item = $"{line} and {word} have the following {commonChars.Length} characters in common: {string.Join(", ", commonChars)}";
+                    if (!results.Contains(item))
                     {
-                        var item = $"{line} and {word} have the following {commonChars.Length} characters in common: {string.Join(", ", commonChars)}";
-                        if (!results.Contains(item))
-                        {
-                            results.Add(item);
-                        }
+                        results.Add(item);
                     }
                 }
             }
+        }
 
             OutputWords = string.Join(Environment.NewLine, results);
         }

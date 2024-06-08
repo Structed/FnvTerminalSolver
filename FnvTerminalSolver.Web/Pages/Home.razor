@@ -2,12 +2,19 @@
 
 <PageTitle>Fallout New Vegas Terminal Solver</PageTitle>
 
+<div class="container-sm">
 <h1>FNV Terminal Solver</h1>
 Add words below and we'll show you the possible passwords and which words are are duds.
-
-<input type="number" @bind="InputMinCommonCharacters" @bind:after="Solve"/>
-<textarea @bind="InputWords"  @bind:after="Solve" class="form-control" rows="5"></textarea>
-<textarea @bind="OutputWords" class="form-control" rows="15" disabled="disabled"></textarea>
+</div>
+<div class="container-sm pt-5">
+    <div>Minimum characters to match: <input type="number" @bind="InputMinCommonCharacters" @bind:after="Solve"/></div>
+</div>
+<div class="container-sm pt-5">
+    <h2 >Input words:</h2>
+    <textarea @bind="InputWords"  @bind:after="Solve" class="form-control" rows="5"></textarea>
+    <h2 >Potential passwords:</h2>
+    <textarea @bind="OutputWords" class="form-control" rows="15" disabled="disabled"></textarea>
+</div>
 
 @code
 {

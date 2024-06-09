@@ -8,8 +8,10 @@
 <PageTitle>Fallout New Vegas Terminal Solver</PageTitle>
 
 <div class="container-sm">
-<h1>FNV Terminal Solver</h1>
-Add words below and we'll show you the possible passwords and which words are are duds.
+    <h1>Fallout New Vegas Terminal Solver</h1>
+    Yeah, those terminals can be a pain. And the tools I have found are a pain to use as well. So I made my own!
+
+    Add words below and it'll show you the possible passwords and omit the words that are are duds.
 </div>
 <div class="container-sm pt-5">
     <div><label for="input-min-common-chars">Minimum characters to match:</label><input id="input-min-common-chars" title="Minimum Common Characters" type="number" @bind="InputMinCommonCharacters" @bind:after="Solve"/></div>
@@ -18,13 +20,32 @@ Add words below and we'll show you the possible passwords and which words are ar
     <h2 >Input words:</h2>
     <label for="input-words">Enter words from Terminal:</label>
     <textarea id="input-words" title="Input Words" @bind="InputWords"  @bind:after="Solve" class="form-control mb-5" rows="5"></textarea>
-    <h2 >Potential passwords:</h2>
-    @foreach (var match in Matches)
+    @if(Matches.Count == 0)
     {
-        @if(@match.CommonCharacters.Length < 4) { colorClass = "text-danger"; }
-        @if(@match.CommonCharacters.Length > 4) { colorClass = "text-warning"; }
-        @if(@match.CommonCharacters.Length >= 6) { colorClass = "text-success"; }
-        <div class="@colorClass">@match.WordA and @match.WordB have the following @match.CommonCharacters.Length characters in common: @string.Join(", ", match.CommonCharacters)</div>
+        <div>No matches found. Please add words above.</div>
+    }
+    else
+    {
+        <h2 >Potential passwords:</h2>
+        @foreach (var match in Matches)
+        {
+            @if (@match.CommonCharacters.Length < 4)
+            {
+                colorClass = "text-danger";
+            }
+
+            @if (@match.CommonCharacters.Length > 4)
+            {
+                colorClass = "text-warning";
+            }
+
+            @if (@match.CommonCharacters.Length >= 6)
+            {
+                colorClass = "text-success";
+            }
+
+            <div class="@colorClass">@match.WordA and @match.WordB have the following @match.CommonCharacters.Length characters in common: @string.Join(", ", match.CommonCharacters)</div>
+        }
     }
 </div>
 

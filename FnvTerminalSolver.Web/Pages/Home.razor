@@ -1,4 +1,9 @@
-﻿@page "/"
+﻿@{
+    var colorClass = "text-danger";
+}
+
+@page "/"
+@using System.Diagnostics
 
 <PageTitle>Fallout New Vegas Terminal Solver</PageTitle>
 
@@ -7,26 +12,33 @@
 Add words below and we'll show you the possible passwords and which words are are duds.
 </div>
 <div class="container-sm pt-5">
-    <div>Minimum characters to match: <input type="number" @bind="InputMinCommonCharacters" @bind:after="Solve"/></div>
+    <div><label for="input-min-common-chars">Minimum characters to match:</label><input id="input-min-common-chars" title="Minimum Common Characters" type="number" @bind="InputMinCommonCharacters" @bind:after="Solve"/></div>
 </div>
 <div class="container-sm pt-5">
     <h2 >Input words:</h2>
-    <textarea @bind="InputWords"  @bind:after="Solve" class="form-control" rows="5"></textarea>
+    <label for="input-words">Enter words from Terminal:</label>
+    <textarea id="input-words" title="Input Words" @bind="InputWords"  @bind:after="Solve" class="form-control mb-5" rows="5"></textarea>
     <h2 >Potential passwords:</h2>
-    <textarea @bind="OutputWords" class="form-control" rows="15" disabled="disabled"></textarea>
+    @foreach (var match in Matches)
+    {
+        @if(@match.CommonCharacters.Length < 4) { colorClass = "text-danger"; }
+        @if(@match.CommonCharacters.Length > 4) { colorClass = "text-warning"; }
+        @if(@match.CommonCharacters.Length >= 6) { colorClass = "text-success"; }
+        <div class="@colorClass">@match.WordA and @match.WordB have the following @match.CommonCharacters.Length characters in common: @string.Join(", ", match.CommonCharacters)</div>
+    }
 </div>
 
 @code
 {
     private string? InputWords { get; set; }
     private int InputMinCommonCharacters { get; set; } = 4;
-    private string? OutputWords { get; set; }
+    private List<WordMatch> Matches { get; set; } = new();
 
     private void Solve()
     {
+        Matches.Clear();
         var text = InputWords?.Split([Environment.NewLine, " "], StringSplitOptions.RemoveEmptyEntries);
 
-        var results = new List<string>();
         // find the similarity between all the strings in text. Show me, which words have which characters in common.
         if (text == null)
             return;
@@ -43,16 +55,29 @@ Add words below and we'll show you the possible passwords and which words are ar
                 var commonChars = line.Intersect(word).ToArray();
                 if (commonChars.Length > InputMinCommonCharacters)
                 {
-                    var item = $"{line} and {word} have the following {commonChars.Length} characters in common: {string.Join(", ", commonChars)}";
-                    if (!results.Contains(item))
-                    {
-                        results.Add(item);
-                    }
+                    Matches.Add(new WordMatch(line, word, commonChars));
                 }
             }
         }
 
-            OutputWords = string.Join(Environment.NewLine, results);
+        RemoveDuplicateMatches();
+        Matches.Sort((x, y) => x == y ? 0 : x.CommonCharacters.Length > y.CommonCharacters.Length ? -1 : 1);
+    }
+
+    private void RemoveDuplicateMatches()
+    {
+        // remove duplicates from Matches. Duplicates are also reversed duplicates.
+        for (int i = 0; i < Matches.Count; i++)
+        {
+            // Compare with all remaining elements in the list.
+            for (int j = i + 1; j < Matches.Count; j++)
+            {
+                if (Matches[i].WordA == Matches[j].WordB && Matches[i].WordB == Matches[j].WordA)
+                {
+                    Matches.RemoveAt(j);
+                    j--; // required, because we removed an element from the list, so remaining elements shifted left.
+                }
+            }
         }
     }
 
